@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <title>OCR your image with Tesseract.js</title>
+
+  <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
+</head>
+
+<body>
+  <h1>OCR your image with Tesseract.js</h1>
+
+  <label for="file">Select or paste an image.</label>
+  <input type="file" id="img" name="img" accept="image/png, image/jpeg" />
+  <div id="preview"></div>
+
+  <template id="template">
+    <div class="wrapper">
+      <div class="overlay-wrapper">
+        <img class="img" draggable="false" />
+        <div class="selection-box selection-box-hidden" />
+      </div>
+      <p class="text"></p>
+    </div>
+  </template>
+
+  <style>
+    .overlay-wrapper {
+      position: relative;
+      width: fit-content;
+      height: fit-content;
+    }
+
+    .selection-box {
+      pointer-events: none;
+      position:absolute;
+      background-color: rgba(127, 127, 255, 0.3);
+      border-color: black;
+      border-width: 1px;
+      border-style: dashed;
+    }
+
+    .selecting-box-hidden {
+      visibility: hidden;
+    }
+
+  </style>
+
+  <script>
+    const template = document.getElementById("template").content.firstElementChild;
+
+    const img = document.getElementById("img");
+    const preview = document.getElementById("preview");
+
+    img.addEventListener("change", handleSelect, false);
+    async function handleSelect() {
+      await handle(this.files);
+    }
+
+    document.addEventListener("paste", handlePaste);
+    async function handlePaste(event) {
+      const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+      const files = [];
+      for (const item of items) {
+        if (item.kind !== 'file') {
+          continue;
+        }
+
+        if (!item.type.startsWith("image/")) {
+          continue;
+        }
+
+        const file = item.getAsFile();
+        files.push(file);
+      }
+      await handle(files);
+    }
+
+    class Recognizer {
+      constructor() {
+        const worker = Tesseract.createWorker({
+          langPath: "https://foriequal0.github.io/utils/tesseract",
+          logger: console.log,
+        });
+
+        this.getWorker = (async function() {
+          await worker.load();
+          await worker.loadLanguage("eng");
+          await worker.initialize("eng");
+          return worker;
+        })();
+      }
+
+      async recognize(image, options) {
+        const worker = await this.getWorker;
+        const recognizeOptions = {
+          rectangle: options.rectangle
+        };
+        const result = await worker.recognize(image, recognizeOptions);
+        return result;
+      }
+    }
+
+    const recognizer = new Recognizer();
+
+    async function handle(files) {
+      preview.innerHTML = "";
+
+      for (const file of files) {
+        const container = template.cloneNode(true);
+        const img = container.querySelector("img");
+        img.src = URL.createObjectURL(file);
+
+        const box = container.querySelector(".selection-box");
+        const text = container.querySelector(".text");
+
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let endX = 0;
+        let endY = 0;
+
+        img.addEventListener('mousedown', e => {
+          startX = e.offsetX;
+          startY = e.offsetY;
+          box.style.left = `${e.offsetX}px`;
+          box.style.top = `${e.offsetY}px`;
+          box.style.width = `0px`;
+          box.style.height = `0px`;
+          box.classList.remove("selecting-box-hidden");
+          isDragging = true;
+        });
+
+        img.addEventListener('mousemove', e => {
+          if (isDragging === true) {
+            endX = e.offsetX;
+            endY = e.offsetY;
+            box.style.left = `${Math.min(startX, endX)}px`;
+            box.style.top = `${Math.min(startY, endY)}px`;
+            box.style.width = `${Math.abs(startX - endX)}px`;
+            box.style.height = `${Math.abs(startY - endY)}px`;
+          }
+        });
+
+        window.addEventListener('mouseup', async e => {
+          if (isDragging === false) {
+            return;
+          }
+
+          isDragging = false;
+
+          const { jobId, data } = await recognizer.recognize(file, {
+            rectangle: {
+              left: Math.min(startX, endX),
+              top: Math.min(startY, endY),
+              width: Math.abs(startX - endX),
+              height: Math.abs(startY - endY),
+            },
+          });
+          text.innerText = data.text;
+        });
+
+        preview.appendChild(container);
+      }
+    }
+  </script>
+
+</body>
+
+</html>
