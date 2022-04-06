@@ -153,6 +153,6 @@ const contentBoxStyle = css({
   height: "max-content",
 });
 
-function ContentBox(props: React.ComponentProps<any>) {
+function ContentBox(props: React.PropsWithChildren<React.ClassAttributes<never>>) {
   return <div css={contentBoxStyle} {...props} />;
 }

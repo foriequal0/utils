@@ -1,7 +1,7 @@
 import Tesseract from "tesseract.js";
 
 export class Recognizer {
-  private getWorker: Promise<Tesseract.Worker>;
+  private readonly getWorker: Promise<Tesseract.Worker>;
 
   public constructor() {
     const worker = Tesseract.createWorker({

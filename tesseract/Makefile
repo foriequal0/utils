@@ -11,3 +11,6 @@ dev: install
 
 preview: install
 	pnpm exec vite preview
+
+lint: install
+	pnpm exec eslint .

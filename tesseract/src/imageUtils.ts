@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import assert from "assert";
 
 export function useImageUrl(file: Blob | MediaSource): string {
   const url = useMemo(() => URL.createObjectURL(file), [file]);
@@ -12,7 +13,7 @@ export function useImageUrl(file: Blob | MediaSource): string {
 export function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise<HTMLImageElement>((resolve) => {
     const image = new Image();
-    image.onload = (ev) => {
+    image.onload = () => {
       resolve(image);
     };
     image.src = url;
@@ -42,7 +43,8 @@ export function adjustImage(image: HTMLImageElement, rect: Rectangle): HTMLCanva
   canvas.width = rect.width * multiplier + padding * 2;
   canvas.height = rect.height * multiplier + padding * 2;
 
-  const ctx = canvas.getContext("2d")!;
+  const ctx = canvas.getContext("2d");
+  assert(ctx);
   ctx.drawImage(
     image,
     rect.left,

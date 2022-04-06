@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { ImageRecognizeWidget } from "./ImageRecognizeWidget";
+import assert from "assert";
 
 export default function App() {
   const [files, setFiles] = useState<File[]>([]);
 
   const onFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files!;
+    const files = e.target.files;
+    assert(files);
     setFiles([...files]);
   }, []);
 
@@ -18,7 +20,8 @@ export default function App() {
           continue;
         }
 
-        const file = item.getAsFile()!;
+        const file = item.getAsFile();
+        assert(file);
         files.push(file);
       }
       setFiles(files);
