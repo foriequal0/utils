@@ -17,12 +17,9 @@ export class Recognizer {
     })();
   }
 
-  public async recognize(image: File, options: Tesseract.RecognizeOptions) {
+  public async recognize(image: Tesseract.ImageLike) {
     const worker = await this.getWorker;
-    const recognizeOptions = {
-      rectangle: options.rectangle,
-    };
-    return await worker.recognize(image, recognizeOptions);
+    return await worker.recognize(image);
   }
 }
 

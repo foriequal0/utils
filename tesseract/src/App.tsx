@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import "./App.css";
 import { ImageRecognizeWidget } from "./ImageRecognizeWidget";
 
 export default function App() {
