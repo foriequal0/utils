@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-git switch gh-pages
-git merge --no-ff main
-if [ -d dists ]; then
-  rm -rf dists/
-  git rm -rf dists/
-fi
+rm -rf dists/
 make -j --keep-going --output-sync=target
-git add --force dists/
-git commit -m "deploy"
-git push -u origin gh-pages
+
+pushd dists/
+
+git init
+git switch -c main
+git config user.name "SeongChan Lee"
+git config user.email "foriequal0@gmail.com"
+git add -A
+git commit -m "Deploy"
+git push -f git@github.com:foriequal0/utils.git main:gh-pages
