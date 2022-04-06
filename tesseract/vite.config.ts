@@ -11,5 +11,6 @@ export default defineConfig({
   base: "/utils/tesseract/",
   build: {
     outDir: path.join(__dirname, "../dists/tesseract"),
+    sourcemap: "inline",
   },
 });
