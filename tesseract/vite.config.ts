@@ -8,6 +8,9 @@ export default defineConfig({
       jsxImportSource: "@emotion/react",
     }),
   ],
+  define: {
+    "process.env": {},
+  },
   base: "/utils/tesseract/",
   build: {
     outDir: path.join(__dirname, "../dists/tesseract"),

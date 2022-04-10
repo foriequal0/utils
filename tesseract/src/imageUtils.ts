@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import assert from "assert";
+import * as assert from "assert";
 
 export function useImageUrl(file: Blob | MediaSource): string {
   const url = useMemo(() => URL.createObjectURL(file), [file]);

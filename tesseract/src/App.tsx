@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { ImageRecognizeWidget } from "./ImageRecognizeWidget";
-import assert from "assert";
+import * as assert from "assert";
 
 export default function App() {
   const [files, setFiles] = useState<File[]>([]);
